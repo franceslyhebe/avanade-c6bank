@@ -1,8 +1,9 @@
-import React, { FormEvent, useState } from "react";
-import {Typography, Container, Button, Avatar, TextField, Checkbox, Grid, Box, CssBaseline, FormControlLabel} from '@mui/material';
+import React, { FormEvent, useState, useEffect } from "react";
+import {Typography, Container, Button, Avatar, TextField, Checkbox, Grid, Box, CssBaseline, FormControlLabel, Snackbar} from '@mui/material';
 import Link from "next/link";
 import {createTheme, ThemeProvider} from '@mui/material/styles';
-import { setDefaultResultOrder } from "dns/promises";
+import SnackbarPage from "../uitls/Snackbar/SnackbarPage";
+
 
 type CopyProps = {
     site ?: string;
@@ -27,37 +28,45 @@ const theme = createTheme();
 
 
 export default function LoginPage(){
+    //state com varivel
+    //one way data binding, significa que o react envia dados para o DOM, o que o DOM faz não importa
+    const [email, setEmail] = useState<string | undefined | null | FormDataEntryValue>('');
     const [password, setPassword] = useState<string | undefined | null | FormDataEntryValue>('');
-    const [error, setError] = useState<string | boolean>('');
+    const [error, setError] = useState<string | boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [open, setOpen] = useState(false);
+    const [count, setCount] = useState(0);
 
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) =>{
-        //Não envia o formulario
+   
+    
+    const handleSubmit = (event: FormEvent<HTMLFormElement>)=>{
         event.preventDefault();
-        //FormData nativo do JS, permite pegar os dados do form
         const data = new FormData(event.currentTarget);
-        //a senha é guardada em um estado e vai para analise
-        setPassword(data.get('password'));
-        if(password && password.length < 6){
-            setError(true);
-            setErrorMessage("Tá de brincadeira, coloca uma senha maior ai");
-        }
+    
+        setPassword(data.get('email'));
         
-        //console.log somente pra verificar os dados
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        })
-
-
     }
 
-
+    useEffect(()=>{
+    
+        if(password && password.length < 6){
+            setError(true)
+            setErrorMessage('Senha precisa ter no mínimo 6 caracteres')
+        }else if(password){
+            setError(false)
+            setErrorMessage('') 
+            setOpen(true);
+        }
+    
+    },[password]);
 
    return(
     <ThemeProvider theme={theme}>
         <Container component="main" maxWidth="xs">
             <CssBaseline />
+
+            <SnackbarPage />
+
             <Box sx={{mt:8, display:'flex', flexDirection:'column', alignItems:'center'}}>
             <Typography component="h1" variant="h5">
                 Tela de Login
